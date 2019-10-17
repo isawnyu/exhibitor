@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Python 3 tests template (changeme)"""
+"""Test Exhibitor objects module"""
 
+from exhibitor.objects import ObjectCollection
 import logging
 from nose.tools import assert_equal, assert_false, assert_true, raises
 from os.path import abspath, join, realpath
@@ -31,6 +32,5 @@ class Test_This(TestCase):
         """Change me"""
         pass
 
-    def test_a(self):
-        """Change me"""
-        pass
+    def test_object_collection(self):
+        oc = ObjectCollection()
