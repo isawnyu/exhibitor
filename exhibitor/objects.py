@@ -12,4 +12,7 @@ logger = logging.getLogger(__name__)
 class ObjectCollection(object):
 
     def __init__(self):
-        pass
+        self.objects = {}
+
+    def __len__(self):
+        return len(self.objects)

@@ -34,3 +34,4 @@ class Test_This(TestCase):
 
     def test_object_collection(self):
         oc = ObjectCollection()
+        assert_equal(0, len(oc))
