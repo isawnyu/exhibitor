@@ -6,6 +6,7 @@ Exhibition Objects and Collections of Same
 
 from copy import deepcopy
 import logging
+import textnorm
 import uuid
 
 fields = [
@@ -70,7 +71,9 @@ class ExhibitionObject(object):
                 self.data[xwalk[k]] = self._clean_value(v)
 
     def _clean_value(self, raw_value):
-        return raw_value
+        v = textnorm.normalize_space(raw_value)
+        v = textnorm.normalize_unicode(v, 'NFC')
+        return v
 
 
 class ObjectCollection(object):

@@ -6,6 +6,7 @@ from exhibitor.objects import ExhibitionObject, ObjectCollection
 import logging
 from nose.tools import assert_equal, assert_false, assert_true, raises
 from os.path import abspath, join, realpath
+import textnorm
 import uuid
 from unittest import TestCase
 
@@ -189,4 +190,20 @@ class Test_Object(TestCase):
         assert_equal(
             'Some information about the foo object.',
             o.data['summary'])
+
+    def test_cleanup(self):
+        """Object: test instantiate with unclean data"""
+        d = {
+            'id': 'foo',
+            'slug': 'foo',
+            'title': '\nFoo lish ',
+            'summary': textnorm.normalize_unicode(
+                'μ\u03adγα βιβλ\u03afον μ\u03adγα κακ\u03ccν',
+                'NFC'
+            )
+        }
+        o = ExhibitionObject(d)
+        assert_equal('Foo lish', o.data['title'])
+        assert_equal('μέγα βιβλίον μέγα κακόν', o.data['summary'])
+
 
