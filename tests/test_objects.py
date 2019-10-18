@@ -5,13 +5,14 @@
 from exhibitor.objects import ExhibitionObject, ObjectCollection
 import logging
 from nose.tools import assert_equal, assert_false, assert_true, raises
-from os.path import abspath, join, realpath
+from pathlib import Path
 import textnorm
 import uuid
 from unittest import TestCase
 
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-test_data_path = abspath(realpath(join('tests', 'data')))
+test_data_path = Path() / 'tests' / 'data'
 
 
 def setup_module():
@@ -115,6 +116,20 @@ class Test_Collection(TestCase):
         }
         oc.add(q)
 
+    def test_load(self):
+        """Collection: load from file"""
+        path = test_data_path / 'raw_object_data.csv'
+        oc = ObjectCollection()
+        oc.load(path)
+        assert_equal(3, len(oc.objects))
+
+    @raises(NotImplementedError)
+    def test_load_rtf(self):
+        """Collection: reject loading rtf from file"""
+        path = test_data_path / 'raw_object_data.rtf'
+        oc = ObjectCollection()
+        oc.load(path, file_type='rtf')
+        
 
 class Test_Object(TestCase):
 

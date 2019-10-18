@@ -5,7 +5,9 @@ Exhibition Objects and Collections of Same
 """
 
 from copy import deepcopy
+from encoded_csv import get_csv
 import logging
+import sys
 import textnorm
 import uuid
 
@@ -98,6 +100,19 @@ class ObjectCollection(object):
                 ''.format(this_id)
             )
             raise RuntimeError(msg)
+
+    def load(self, path, file_type='csv'):
+        valid_types = ['csv']
+        if file_type not in valid_types:
+            raise NotImplementedError(
+                'Loading an object collection from a file of type "{}" '
+                'is unsupported. Supported types: {}'
+                ''.format(file_type, valid_types)
+            )
+        elif file_type == 'csv':
+            data = get_csv(path, sample_lines=1000)
+            for datum in data['content']:
+                self.add(datum)
 
     def _make_object(self, obj_data, obj_id):
         if isinstance(obj_data, ExhibitionObject):
