@@ -7,15 +7,52 @@ Exhibition Objects and Collections of Same
 from copy import deepcopy
 from encoded_csv import get_csv
 import logging
-import sys
 import textnorm
 import uuid
 
+
+# exhibition object fields are defined at:
+# github.com/isawnyu/isaw.web:
+#    /src/isaw.exhibitions/isaw/exhibitions/interfaces/__init__.py
+
 fields = [
+    'title',  # required
+    'summary',
+    'full_title',
+    'title_detail',
+    'artist',
+    'author',
+    'copyist',
+    'download_link',
+    'download_link_text',
+    'download_link_type',
+    'translator',
+    'copyright',
+    'credits',
+    'date',
+    'dimensions',
+    'exhibition_context',
+    'image',
+    'alt',
+    'inventory_num',  # required
+    'lender',
+    'lender_link',
+    'medium',
+    'not_after',
+    'not_before',
+    'notes',
+    'object_language',
+    'object_location',
+    'text',  # i.e. body
+    'label',
     'id',
     'title',
     'slug',
     'summary'
+]
+required_fields = [
+    'title',
+    'inventory_num'
 ]
 logger = logging.getLogger(__name__)
 
@@ -23,7 +60,7 @@ logger = logging.getLogger(__name__)
 class ExhibitionObject(object):
     """
     Information about a single item (or group of items) in an exhibition.
-    One exhibition object corresponds to a single "object" page on 
+    One exhibition object corresponds to a single "object" page on
     the ISAW website.
     """
 
@@ -34,7 +71,8 @@ class ExhibitionObject(object):
                 valid = True
                 break
         if not valid:
-            msg = 'Unable to adapt object data of type {}'.format(type(obj_data))
+            msg = 'Unable to adapt object data of type {}'.format(
+                type(obj_data))
             raise ValueError(msg)
         self.data = {}
         for field in fields:
@@ -56,9 +94,10 @@ class ExhibitionObject(object):
                         'internal_id({}) does not match obj_id({})'
                         ''.format(internal_id, obj_id)
                     )
-                    raise RuntimeError(msg)                
+                    raise RuntimeError(msg)
         self.data['id'] = this_id
-        self._adapt({k: v for k, v in obj_data.items() if k != 'id'}, crosswalk)
+        self._adapt(
+            {k: v for k, v in obj_data.items() if k != 'id'}, crosswalk)
 
     def _adapt(self, obj_data, crosswalk):
         if crosswalk is None:
@@ -125,8 +164,3 @@ class ObjectCollection(object):
         else:
             o = ExhibitionObject(obj_data, obj_id, self.crosswalk)
             return (o.data['id'], o)
-
-
-
-        
-            
