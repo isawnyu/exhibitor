@@ -2,10 +2,14 @@
 # -*- coding: utf-8 -*-
 """Test Exhibitor objects module"""
 
+from contextlib import contextmanager
 from exhibitor.objects import ExhibitionObject, ObjectCollection
+from io import StringIO
+import json
 import logging
 from nose.tools import assert_equal, assert_false, assert_true, raises
 from pathlib import Path
+import sys
 import textnorm
 import uuid
 from unittest import TestCase
@@ -17,12 +21,31 @@ test_data_path = Path() / 'tests' / 'data'
 
 def setup_module():
     """Change me"""
-    pass
+    temp_path = test_data_path / 'out_raw_object_data.json'
+    try:
+        temp_path.unlink()
+    except FileNotFoundError:
+        pass
 
 
 def teardown_module():
     """Change me"""
-    pass
+    temp_path = test_data_path / 'out_raw_object_data.json'
+    try:
+        temp_path.unlink()
+    except FileNotFoundError:
+        pass
+
+
+@contextmanager
+def captured_output():
+    new_out, new_err = StringIO(), StringIO()
+    old_out, old_err = sys.stdout, sys.stderr
+    try:
+        sys.stdout, sys.stderr = new_out, new_err
+        yield sys.stdout, sys.stderr
+    finally:
+        sys.stdout, sys.stderr = old_out, old_err
 
 
 class Test_Collection(TestCase):
@@ -129,7 +152,75 @@ class Test_Collection(TestCase):
         path = test_data_path / 'raw_object_data.rtf'
         oc = ObjectCollection()
         oc.load(path, file_type='rtf')
-        
+
+    def test_dump_dict(self):
+        """Collection: test prep of dictionary suitable for export"""
+        path = test_data_path / 'raw_object_data.csv'
+        oc = ObjectCollection()
+        oc.load(path)
+        d = oc._make_dump_dict()
+        assert_equal(3, len(d))
+        for k, v in d.items():
+            assert_true(k in ['foo', 'bar', 'pickle'])
+        assert_equal(
+            'Foo',
+            d['foo']['title']
+        )
+        assert_equal(
+            'What about foo?',
+            d['foo']['summary']
+        )
+        assert_equal(
+            'foo',
+            d['foo']['id']
+        )
+        assert_equal(
+            'foo',
+            d['foo']['slug']
+        )
+
+    def test_dump_stdio_json(self):
+        """Collection: test JSON dump to stdout"""
+        path = test_data_path / 'raw_object_data.csv'
+        oc = ObjectCollection()
+        oc.load(path)
+        with captured_output() as (out, err):
+            oc._dump_stdio_json()
+        output = out.getvalue()
+        assert_equal('{', output[0])
+        assert_true('"bar": {' in output)
+        assert_true(
+            "I don't want a pickle! I just want to ride my motorcycle!" in
+            output)
+        with captured_output() as (out, err):
+            oc.dump()  # default is json to stdio
+        output = out.getvalue()
+        assert_equal('{', output[0])
+        assert_true('"bar": {' in output)
+        assert_true(
+            "I don't want a pickle! I just want to ride my motorcycle!" in
+            output)
+
+    def test_dump_file_json(self):
+        """Collection: test JSON dump to file"""
+        path = test_data_path / 'raw_object_data.csv'
+        oc = ObjectCollection()
+        oc.load(path)
+        dest = test_data_path / 'out_raw_object_data.json'
+        oc.dump(dest)
+        with open(dest, 'r', encoding='utf-8') as f:
+            j = json.load(f)
+        for k, v in j.items():
+            assert_equal(v, oc.objects[k].data)
+
+    @raises(NotImplementedError)
+    def test_dump_bad_type(self):
+        """Collection: test dumping to unsupported type"""
+        path = test_data_path / 'raw_object_data.csv'
+        oc = ObjectCollection()
+        oc.load(path)
+        oc.dump(file_type='rtf')
+
 
 class Test_Object(TestCase):
 

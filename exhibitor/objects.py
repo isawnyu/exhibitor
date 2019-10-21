@@ -6,6 +6,7 @@ Exhibition Objects and Collections of Same
 
 from copy import deepcopy
 from encoded_csv import get_csv
+import json
 import logging
 import textnorm
 import uuid
@@ -176,6 +177,23 @@ class ObjectCollection(object):
         except KeyError:
             pass
 
+    def dump(self, file_path=None, file_type='json'):
+        valid_types = ['json']
+        if file_type not in valid_types:
+            raise NotImplementedError(
+                'Dumping an object collection to a file of type "{}" '
+                'is unsupported. Supported types: {}'
+                ''.format(file_type, valid_types)
+            )
+        elif file_path is None:
+            getattr(
+                self,
+                '_dump_stdio_{}'.format(file_type))()
+        else:
+            getattr(
+                self,
+                '_dump_file_{}'.format(file_type))(file_path)
+
     def get_by_title(self, title):
         try:
             self.indices['title']
@@ -205,6 +223,33 @@ class ObjectCollection(object):
             data = get_csv(path, sample_lines=1000)
             for datum in data['content']:
                 self.add(datum, merge=merge)
+
+    def _dump_file_json(self, file_path):
+        d = self._make_dump_dict()
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(
+                d,
+                f,
+                ensure_ascii=False,
+                indent=4,
+                sort_keys=True
+            )
+
+    def _dump_stdio_json(self):
+        d = self._make_dump_dict()
+        j = json.dumps(
+            d,
+            ensure_ascii=False,
+            indent=4,
+            sort_keys=True
+        )
+        print(j)
+
+    def _make_dump_dict(self):
+        d = {}
+        for obj_id, obj in self.objects.items():
+            d[obj_id] = obj.data
+        return d
 
     def _make_object(self, obj_data, obj_id):
         if isinstance(obj_data, ExhibitionObject):

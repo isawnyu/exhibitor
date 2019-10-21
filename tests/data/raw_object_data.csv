@@ -1,4 +1,4 @@
-"id","slug","title","summary"
-"foo","foo","Foo","What about foo?"
-"bar","bar","Bar","What about bar?"
-"pickle","pickle","Pickle","I don’t want a pickle! I just want to ride my motorcycle!"
+id,slug,title,summary
+foo,foo,Foo,What about foo?
+bar,bar,Bar,What about bar?
+pickle,pickle,Pickle,I don't want a pickle! I just want to ride my motorcycle!
