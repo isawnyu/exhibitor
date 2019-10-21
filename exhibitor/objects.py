@@ -99,6 +99,29 @@ class ExhibitionObject(object):
         self._adapt(
             {k: v for k, v in obj_data.items() if k != 'id'}, crosswalk)
 
+    def merge(self, other_obj, delimiter='; '):
+        merged = {}
+        for k, this_v in self.data.items():
+            if k == 'id':
+                continue
+            try:
+                other_v = other_obj.data[k]
+            except KeyError:
+                other_v = None
+            if this_v is None and other_v is None:
+                merged[k] = None
+            elif this_v is None:
+                merged[k] = other_v
+            elif other_v is None:
+                merged[k] = this_v
+            else:
+                if this_v == other_v:
+                    merged[k] = this_v
+                else:
+                    merged[k] = delimiter.join((this_v, other_v))
+        merged['id'] = str(uuid.uuid4())
+        return ExhibitionObject(merged)
+
     def _adapt(self, obj_data, crosswalk):
         if crosswalk is None:
             xwalk = {}
@@ -112,8 +135,12 @@ class ExhibitionObject(object):
                 self.data[xwalk[k]] = self._clean_value(v)
 
     def _clean_value(self, raw_value):
-        v = textnorm.normalize_space(raw_value)
-        v = textnorm.normalize_unicode(v, 'NFC')
+        v = raw_value
+        if v is not None:
+            v = textnorm.normalize_space(v)
+            v = textnorm.normalize_unicode(v, 'NFC')
+            if v in ['', ' ']:
+                v = None
         return v
 
 
@@ -121,26 +148,52 @@ class ObjectCollection(object):
 
     def __init__(self, crosswalk=None):
         self.objects = {}
+        self.indices = {}
         self.crosswalk = crosswalk
 
     def __len__(self):
         return len(self.objects)
 
-    def add(self, obj_data, obj_id=None):
+    def add(self, obj_data, obj_id=None, merge=False):
         this_id, this_obj = self._make_object(obj_data, obj_id)
         try:
             self.objects[this_id]
         except KeyError:
             self.objects[this_id] = this_obj
         else:
-            msg = (
-                'ID collision in object collision: there is already a key '
-                'with value "{}"'
-                ''.format(this_id)
-            )
-            raise RuntimeError(msg)
+            if merge:
+                merged_obj = self.objects[this_id].merge(this_obj)
+                self.objects[this_id] = merged_obj
+            else:
+                msg = (
+                    'ID collision in object addition: there is already a key '
+                    'with value "{}"'
+                    ''.format(this_id)
+                )
+                raise RuntimeError(msg)
+        try:
+            del self.indices['title']
+        except KeyError:
+            pass
 
-    def load(self, path, file_type='csv'):
+    def get_by_title(self, title):
+        try:
+            self.indices['title']
+        except KeyError:
+            self.indices['title'] = {}
+            for obj_id, obj in self.objects.items():
+                try:
+                    self.indices['title'][obj.data['title']]
+                except KeyError:
+                    self.indices['title'][obj.data['title']] = [obj_id]
+                else:
+                    self.indices['title'][obj.data['title']].append(obj_id)
+        try:
+            return self.indices['title'][title]
+        except KeyError:
+            return []
+
+    def load(self, path, file_type='csv', merge=False):
         valid_types = ['csv']
         if file_type not in valid_types:
             raise NotImplementedError(
@@ -151,7 +204,7 @@ class ObjectCollection(object):
         elif file_type == 'csv':
             data = get_csv(path, sample_lines=1000)
             for datum in data['content']:
-                self.add(datum)
+                self.add(datum, merge=merge)
 
     def _make_object(self, obj_data, obj_id):
         if isinstance(obj_data, ExhibitionObject):

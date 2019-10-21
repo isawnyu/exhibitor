@@ -221,4 +221,22 @@ class Test_Object(TestCase):
         assert_equal('Foo lish', o.data['title'])
         assert_equal('μέγα βιβλίον μέγα κακόν', o.data['summary'])
 
+    def test_merge(self):
+        """Object: test merge with another objects"""
+        d1 = {
+            'id': 'foo',
+            'slug': 'foo',
+            'title': 'Foo',
+            'summary': 'Some information about the foo object.'
+        }
+        d2 = {
+            'id': 'bar',
+            'slug': 'bar',
+            'title': 'Bar',
+            'summary': 'Some information about the bar object.'
+        }
+        o1 = ExhibitionObject(d1)
+        o2 = ExhibitionObject(d2)
+        o3 = o1.merge(o2)
+        assert_true(uuid.UUID(o3.data['id'], version=4))
 
