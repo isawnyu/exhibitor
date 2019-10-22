@@ -2,3 +2,4 @@
 coverage
 nose
 git+https://github.com/isawnyu/textnorm.git
+git+https://github.com/mozilla/unicode-slugify.git

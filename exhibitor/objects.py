@@ -8,6 +8,7 @@ from copy import deepcopy
 from encoded_csv import get_csv
 import json
 import logging
+from slugify import slugify
 import textnorm
 import uuid
 
@@ -150,6 +151,7 @@ class ObjectCollection(object):
     def __init__(self, crosswalk=None):
         self.objects = {}
         self.indices = {}
+        self.slugs = {}
         self.crosswalk = crosswalk
 
     def __len__(self):
@@ -163,7 +165,12 @@ class ObjectCollection(object):
             self.objects[this_id] = this_obj
         else:
             if merge:
+                logger.warning(
+                    'Merging objects with id={}. You may want to check title.'
+                    ''.format(this_id)
+                )
                 merged_obj = self.objects[this_id].merge(this_obj)
+                merged_obj.data['id'] = this_id
                 self.objects[this_id] = merged_obj
             else:
                 msg = (
@@ -212,7 +219,7 @@ class ObjectCollection(object):
             return []
 
     def load(self, path, file_type='csv', merge=False):
-        valid_types = ['csv']
+        valid_types = ['csv', 'json']
         if file_type not in valid_types:
             raise NotImplementedError(
                 'Loading an object collection from a file of type "{}" '
@@ -223,6 +230,41 @@ class ObjectCollection(object):
             data = get_csv(path, sample_lines=1000)
             for datum in data['content']:
                 self.add(datum, merge=merge)
+        elif file_type == 'json':
+            with open(path, 'r', encoding='utf8') as f:
+                j = json.load(f)
+            del f
+            for datum_id, datum in j.items():
+                self.add(datum, obj_id=datum_id, merge=merge)
+
+    def make_slugs(self):
+        for obj_id, obj in self.objects.items():
+            slug = self._set_slug(obj_id)
+            if slug is None:
+                slug = obj.data['title']
+                for punct in [':', '(', '.', ';', ',']:
+                    if punct in slug:
+                        slug = slug.split(punct)[0].strip()
+                slug = textnorm.normalize_space(slug)
+                words = slug.split()
+                for skip in ['of', 'with', 'from']:
+                    try:
+                        idx = words.index(skip)
+                    except ValueError:
+                        continue
+                    else:
+                        del words[idx]
+                slug = ' '.join(words)
+                slug = slugify(slug, only_ascii=True)
+            try:
+                self.slugs[slug]
+            except KeyError:
+                self.slugs[slug] = 1
+            else:
+                suffix = chr(self.slugs[slug] + 96)
+                self.slugs[slug] += 1
+                slug += '-{}'.format(suffix)
+            obj.data['slug'] = slug
 
     def _dump_file_json(self, file_path):
         d = self._make_dump_dict()
@@ -262,3 +304,6 @@ class ObjectCollection(object):
         else:
             o = ExhibitionObject(obj_data, obj_id, self.crosswalk)
             return (o.data['id'], o)
+
+    def _set_slug(self, obj_id):
+        return None
