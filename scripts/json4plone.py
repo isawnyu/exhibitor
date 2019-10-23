@@ -45,10 +45,11 @@ def main(**kwargs):
     for orig_id, obj_data in j.items():
         item = {}
         for field_name, field_value in obj_data.items():
-            if field_name not in ['id', 'slug']:
+            if field_name not in ['id', 'slug', 'summary']:
                 if field_value is not None:
                     item[field_name] = field_value
         item['id'] = obj_data['slug']
+        item['description'] = obj_data['summary']
         items.append(item)
     payload = {
         'items': []

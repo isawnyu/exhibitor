@@ -19,7 +19,8 @@ import uuid
 
 fields = [
     'title',  # required
-    'summary',
+    'summary',  # plone calls this "description", but what's labeled
+                # "description" in base view is actually "full_title"
     'full_title',
     'title_detail',
     'artist',
