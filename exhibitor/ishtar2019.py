@@ -851,11 +851,12 @@ class IshtarCollection(ObjectCollection):
                                     fu = title_fixup[fu]
                                 obj.data[fixup_key] = fu
                     if (
-                        obj.data['full_title'] is None and
+                        obj.data['title_detail'] is None and
                         obj.data['title'] != title_fixup['original_title'] and
-                        'full_title' not in title_fixup.keys()
+                        'title_detail' not in title_fixup.keys()
                     ):
-                        obj.data['full_title'] = title_fixup['original_title']
+                        obj.data['title_detail'] = title_fixup[
+                            'original_title']
                 else:
                     logger.error(
                         'Title/ID drift for ID = "{}". Expected "{}". Got "{}"'
