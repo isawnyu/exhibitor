@@ -45,6 +45,11 @@ def main(**kwargs):
         'Exhibited at ISAW during "A Wonder to Behold: Craftmanship and the '
         'Creation of Babylon\'s Ishtar Gate", November 6, 2019 - May 24, 2020.'
     )
+
+    ic.dump(destination)
+    print('Results written to {}'.format(destination.absolute()))
+    sys.exit()
+    
     ic.dump()
     sys.exit()
 
