@@ -266,6 +266,51 @@ class ObjectCollection(object):
                 slug += '-{}'.format(suffix)
             obj.data['slug'] = slug
 
+    def make_summaries(self, exhibition_blurb=None):
+        for obj_id, obj in self.objects.items():
+            summary = self._set_summary(obj, exhibition_blurb)
+            if summary is None:
+                raise RuntimeError('Disastrous fail')
+            else:
+                obj.data['summary'] = summary
+
+    def _make_summary_artist(self, obj, suppress_unknown=True):
+        artist = obj.data['artist']
+        if artist is not None:
+            if not suppress_unknown or 'unknown' not in artist.lower():
+                return artist
+        return None
+
+    def _make_summary_inventory_num(self, obj, suppress_unknown=True):
+        invno = obj.data['inventory_num']
+        if invno is not None:
+            if (
+                not suppress_unknown or
+                (
+                    'unknown' not in invno and
+                    invno != 'N/A'
+                )
+            ):
+                return invno
+        return None
+
+    def _make_summary_lender(self, obj):
+        return obj.data['lender']
+
+    def _make_summary_location(self, obj):
+        return obj.data['object_location']
+
+    def _make_summary_title(self, obj, include_detail=False):
+        title_types = ['full_title', 'title']
+        if include_detail:
+            title_types = ['title_detail'] + title_types
+        for fullest in title_types:
+            if obj.data[fullest] is not None:
+                return obj.data[fullest]
+        raise RuntimeError(
+            'No valid titles in object {}'.format(obj.data['id'])
+        )
+
     def _dump_file_json(self, file_path):
         d = self._make_dump_dict()
         with open(file_path, 'w', encoding='utf-8') as f:
@@ -307,3 +352,24 @@ class ObjectCollection(object):
 
     def _set_slug(self, obj_id):
         return None
+
+    def _set_summary(self, obj, exhibition_blurb):
+        summary = ''
+        summary += self._make_summary_title(obj)
+        artist = self._make_summary_artist(obj)
+        if artist is not None:
+            summary += ' by {}'.format(artist)
+        ol = self._make_summary_location(obj)
+        if ol is not None:
+            summary += ' from {}'.format(ol)
+        summary += '. '
+        summary += 'Lent by {} (inventory number: {}).'.format(
+            obj._make_summary_lender(), 
+            obj._make_summary_inventory_number())
+        if exhibition_blurb is not None:
+            summary += ' {}'.format(exhibition_blurb)
+        if summary[-1] != '.':
+            summary += '.'
+        return summary
+
+

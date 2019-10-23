@@ -41,9 +41,26 @@ def main(**kwargs):
     ic.load(source, 'json')
     ic.fix_titles()
     ic.make_slugs()
-    sorted_slugs = sorted([(obj.data['slug'], obj.data['id']) for k, obj in ic.objects.items()], key=lambda x: x[0])
+    ic.make_summaries(
+        'Exhibited at ISAW during "A Wonder to Behold: Craftmanship and the '
+        'Creation of Babylon\'s Ishtar Gate", November 6, 2019 - May 24, 2020.'
+    )
     ic.dump()
     sys.exit()
+
+    for obj_id, obj in ic.objects.items():
+        print(
+            '\n{}: {}'.format(
+                obj_id, obj.data['summary']
+            )
+        )
+
+    sys.exit()
+
+    sorted_slugs = sorted(
+        [
+            (obj.data['slug'], obj.data['id']) for k, obj
+            in ic.objects.items()], key=lambda x: x[0])
     for slug in sorted_slugs:
         print('{}:\t{}'.format(slug[0], slug[1]))
     sys.exit()

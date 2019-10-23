@@ -7,6 +7,7 @@ Objects and collections for the 2019 Ishtar exhibition
 from copy import deepcopy
 from exhibitor.objects import ObjectCollection
 import logging
+import textnorm
 
 logger = logging.getLogger(__name__)
 ISHTAR_CROSSWALK = {
@@ -305,6 +306,12 @@ TITLE_FIXUPS = {
         ),
         'title': 'Brick'
     },
+    '2': {
+        'original_title': 'Brick fragment',
+        'title': 'Brick Fragments',
+        'full_title': None,
+        'title_detail': None
+    },
     '20': {
         'original_title': (
             'Wall tile with knob, decorated with palmette and eye motifs'
@@ -424,13 +431,13 @@ TITLE_FIXUPS = {
             "Reconstruction of bricks with a mušhuššu-dragon from the Ishtar "
             "Gate"
         ),
-        'title': 'Reconstructed Bricks'
+        'title': 'Illustration'
     },
     '46': {
         'original_title': (
             "Reconstruction of a bull from the Ishtar Gate"
         ),
-        'title': 'Reconstructed Bull'
+        'title': 'Illustration'
     },
     '47': {
         'original_title': (
@@ -659,7 +666,7 @@ SLUG_FIXUPS = {
     '17': 'brick-water-goddess-2',
     '18': 'brick-mountain-god-1',
     '19': 'brick-mountain-god-2',
-    '2': 'brick-fragment',
+    '2': 'brick-fragments',
     '20': 'wall-tile-palmette',
     '21': 'brick-god-face',
     '22': 'brick-floral-2',
@@ -746,6 +753,78 @@ SLUG_FIXUPS = {
     '98': 'brick-palmette'
 }
 
+SUMMARY_FIXUPS = {
+    '1': (
+        "Crate used to ship bricks from Babylon to Berlin. Lent by Staatliche "
+        "Museen zu Berlin, Vorderasiatisches Museum."
+    ),
+    '124': (
+        "Samples of stones and metals. Lent by Mineralogical and Geological "
+        "Museum, Harvard University (inventory numbers: 109163; 132691; "
+        "132621; 88805; 128750; 99501; 83164; 96791; 81490; 112538; 121347; "
+        "95355; 99713; 81536)."
+    ),
+    '2': (
+        "Brick Fragments, from Babylon, Iraq. Lent by Staatliche Museen zu "
+        "Berlin, Vorderasiatisches Museum (inventory numbers: "
+        "VA 17462; VA 17467; VA 17472-17491; VA 17493; VA 17495-17502)."
+    ),
+    '47': (
+        "Photograph showing the beginning of excavation of the Ishtar Gate, "
+        "from Babylon, Iraq (photographer unknown). Lent by Staatliche Museen "
+        "zu Berlin, Vorderasiatisches Museum (inventory number: Bab Ph 157 + "
+        "Bab Ph 158b)."
+    ),
+    '48': (
+        "Photograph showing a portion of an Ishtar Gate wall found in situ, "
+        "showing an earlier unglazed molded bull and part of a later glazed "
+        "flat bull (photographer unknown). Lent by Staatliche Museen "
+        "zu Berlin, Vorderasiatisches Museum (inventory number: Bab Ph 159)."
+    ),
+    '49': (
+        "Photograph showing a portion of an Ishtar Gate wall with unglazed "
+        "mušhuššu-dragon bricks found in situ (photographer unknown). Lent by "
+        "Staatliche Museen zu Berlin, Vorderasiatisches Museum (inventory "
+        "number: Bab Ph 147)."
+    ),
+    '50': (
+        "Photograph showing a view of unglazed remains of the Ishtar Gate "
+        "found in situ, from Babylon, Iraq (photographer unknown). Lent "
+        "by Staatliche Museen zu Berlin, Vorderasiatisches Museum (inventory "
+        "number: Bab Ph 201 + Bab Ph 202b)."
+    ),
+    '51': (
+        "Photograph showing remains of unglazed walls of the Ishtar Gate found"
+        " in situ, from Babylon, Iraq (photographer unknown). Lent by "
+        "Staatliche Museen zu Berlin, Vorderasiatisches Museum (inventory "
+        "number: Bab Ph 197)."
+    ),
+    '52': (
+        "Photograph taken in Berlin, Germany by an unknown photographer "
+        "showing work to desalinate glazed brick fragments from Babylon."
+        "Lent by Staatliche Museen zu Berlin, Vorderasiatisches Museum "
+        "(inventory number: Bab Ph 3701)."
+    ),
+    '53': (
+        "Photograph taken in Berlin, Germany by an unknown photographer "
+        "showing work to sort and "
+        "assemble glazed brick fragments from Babylon. Lent by Staatliche "
+        "Museen zu Berlin, Vorderasiatisches Museum (inventory number: Bab Ph "
+        "3700 R)."
+    ),
+    '54': (
+        "Photograph taken in Berlin, Germany by an unknown photographer "
+        "showing reconstruction work of a brick with cuneiform writing "
+        "excavated at Babylon. Lent by Staatliche "
+        "Museen zu Berlin, Vorderasiatisches Museum (inventory number: "
+        "VAN 10356)."
+    ),
+    '91': (
+        "Pieces of cullet, from Germany. Lent by The Corning Museum of Glass "
+        "(inventory numbers: 94.3.143 A-O)."
+    )
+}
+
 
 class IshtarCollection(ObjectCollection):
 
@@ -767,11 +846,15 @@ class IshtarCollection(ObjectCollection):
                         except KeyError:
                             pass
                         else:
-                            if fu in fixup_keys + ['original_title']:
-                                fu = title_fixup[fu]
-                            obj.data[fixup_key] = fu
-                    if obj.data['full_title'] is None and \
-                       obj.data['title'] != title_fixup['original_title']:
+                            if fu is not None:                                
+                                if fu in fixup_keys + ['original_title']:
+                                    fu = title_fixup[fu]
+                                obj.data[fixup_key] = fu
+                    if (
+                        obj.data['full_title'] is None and
+                        obj.data['title'] != title_fixup['original_title'] and
+                        'full_title' not in title_fixup.keys()
+                    ):
                         obj.data['full_title'] = title_fixup['original_title']
                 else:
                     logger.error(
@@ -788,3 +871,73 @@ class IshtarCollection(ObjectCollection):
         except KeyError:
             slug = None
         return slug
+
+    def _set_summary(self, obj, exhibition_blurb):
+        try:
+            summary = SUMMARY_FIXUPS[obj.data['id']]
+        except KeyError:
+            summary = ''
+            title = obj.data['title']
+            medium = obj.data['medium']
+            if title == 'Illustration':
+                if 'watercolor' in medium.lower():
+                    summary += 'Watercolor illustration of a '
+                elif medium == 'Graphite on paper':
+                    summary += 'Graphite drawing of a '
+                elif medium == 'Ink on paper':
+                    summary += 'Ink drawing of a '
+                else:
+                    raise RuntimeError(
+                        'Object {} is illustration with untrapped medium "{}"'
+                        ''.format(obj['id'], medium)
+                    )
+            elif 'Photograph' in title:
+                summary += '{}: '.format(title)
+            if title in [
+                'Cylinder Seal', 'Stamp Seal', 'Eyestone', 'Brick', 'Bricks',
+                'Fragmentary brick', 'Brick Stamp'
+            ]:
+                stitle = self._make_summary_title(obj, include_detail=True)
+            elif title == 'Ingot':
+                stitle = '{} ingot'.format(medium)
+            else:
+                stitle = self._make_summary_title(obj)
+            if len(summary) > 0:
+                stitle = stitle[0].lower() + stitle[1:]
+            summary += stitle
+            artist = self._make_summary_artist(obj)
+            if artist is not None:
+                summary += ' by {}'.format(artist)
+            ol = self._make_summary_location(obj)
+            if ol is not None:
+                summary += ', '
+                if ol.startswith('Said to be from'):
+                    summary += 's{}'.format(ol[1:])
+                elif ol == 'Probably Mesopotamia, Iraq':
+                    summary += 'probably from Mesopotamia (Iraq)'
+                elif ol.startswith('Probably ') and ' from ' not in ol:
+                    summary += 'probably from {}'.format(ol[9:])
+                elif ol.startswith('Near ') and ' from ' not in ol:
+                    summary += 'from near {}'.format(ol[5:])
+                else:
+                    summary += 'from {}'.format(ol)
+            summary += '. '
+            lender = self._make_summary_lender(obj)
+            invno = self._make_summary_inventory_num(obj)
+            if lender is not None and invno is not None:
+                summary += 'Lent by {} (inventory number: {}).'.format(lender, invno)
+            elif lender is not None and invo is None:
+                summary += 'Lent by {}.'.format(lender)
+            else:
+                raise RuntimeError('No lender found for {}'.format(obj['id']))
+            if exhibition_blurb is not None:
+                summary += ' {}'.format(exhibition_blurb)
+            if summary[-1] != '.':
+                summary += '.'
+        else:
+            if exhibition_blurb is not None:
+                summary = ' '.join(
+                    (summary, exhibition_blurb)
+                )
+                summary = textnorm.normalize_space(summary)
+        return summary
