@@ -34,7 +34,7 @@ TITLE_FIXUPS = {
         'original_title': (
             "Fragmentary brick with floral motif and fitters' mark"
         ),
-        'title': 'Brick'
+        'title': 'Brick Fragment'
     },
     "100": {
         'original_title': 'Bowl with procession of bulls',
@@ -95,7 +95,7 @@ TITLE_FIXUPS = {
             "Fragmentary brick with impression of reed matting, and a dog's "
             "paw print on reverse"
         ),
-        'title': 'Brick'
+        'title': 'Brick Fragment'
     },
     '110': {
         'original_title': 'Reconstruction of the Ishtar Gate',
@@ -175,11 +175,11 @@ TITLE_FIXUPS = {
         'original_title': (
             "Fragmentary tile with a genie standing on two griffins in contest with two monsters"
         ),
-        'title': 'Tile'
+        'title': 'Tile Fragment'
     },
     '121': {
         'original_title': 'Fragmentary wall tile with checkerboard motif',
-        'title': 'Tile'
+        'title': 'Tile Fragment'
     },
     '122': {
         'original_title': 'Bricks with the head of an archer',
@@ -330,15 +330,15 @@ TITLE_FIXUPS = {
     },
     '23': {
         'original_title': 'Brick fragment with rosette motif',
-        'title': 'Brick'
+        'title': 'Brick Fragment'
     },
     '24': {
         'original_title': 'Brick fragment with rosette motif',
-        'title': 'Brick'
+        'title': 'Brick Fragment'
     },
     '25': {
         'original_title': 'Brick fragment with rosette motif',
-        'title': 'Brick'
+        'title': 'Brick Fragment'
     },
     '26': {
         'original_title': 'Vessel with frieze of kneeling caprids',
