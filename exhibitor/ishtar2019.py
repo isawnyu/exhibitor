@@ -538,7 +538,7 @@ TITLE_FIXUPS = {
     },
     '71': {
         'original_title': 'Fragments of inscribed ritual axes',
-        'title': 'Inscribed Axes'
+        'title': 'Fragments of Inscribed Axes'
     },
     '72': {
         'original_title': (
