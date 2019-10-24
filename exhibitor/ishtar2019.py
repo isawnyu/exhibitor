@@ -896,7 +896,8 @@ class IshtarCollection(ObjectCollection):
                 summary += '{}: '.format(title)
             if title in [
                 'Cylinder Seal', 'Stamp Seal', 'Eyestone', 'Brick', 'Bricks',
-                'Fragmentary brick', 'Brick Stamp'
+                'Fragmentary brick', 'Brick Stamp', 'Inlay from Statuette',
+                'Inlay from Statue'
             ]:
                 stitle = self._make_summary_title(obj, include_detail=True)
             elif title == 'Ingot':
