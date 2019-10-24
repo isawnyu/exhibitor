@@ -481,20 +481,20 @@ TITLE_FIXUPS = {
         'original_title': (
             'Desalinating glazed brick fragments from Babylon'
         ),
-        'title': 'Curatorial Photograph'
+        'title': 'Museum Photograph'
     },
     '53': {
         'original_title': (
             'Sorting and assembling glazed brick fragments from Babylon'
         ),
-        'title': 'Curatorial Photograph'
+        'title': 'Museum Photograph'
     },
     '54': {
         'original_title': (
             "Reconstructing a brick with cuneiform writing from fragments "
             "excavated at Babylon"
         ),
-        'title': 'Curatorial Photograph'
+        'title': 'Museum Photograph'
     },
     '55': {
         'original_title': 'Brick stamp with cuneiform inscription of a king',
