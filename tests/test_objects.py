@@ -231,7 +231,8 @@ class Test_Collection(TestCase):
             None,
             fail_on_mismatch=True
         )
-        wim = [o for oid, o in oc.objects.items() if o.data['image'] is not None]
+        wim = [o for oid, o in oc.objects.items() if o.data['image']
+               is not None]
         assert_equal(3, len(wim))
         wim = [o.data['image'] for o in wim]
         assert_true('test_foo.jpg' in wim)
@@ -239,6 +240,26 @@ class Test_Collection(TestCase):
         assert_true('test_pickle.jpg' in wim)
         assert_true('foo_bar.tif' not in wim)
         assert_true('foobar.jpg' not in wim)
+
+    def test_alt_text(self):
+        """Collection: test adding alt_text"""
+        path = test_data_path / 'raw_object_data.csv'
+        oc = ObjectCollection()
+        oc.load(path)
+        oc._add_alt_text(
+            test_data_path / 'raw_object_alt_text.csv',
+            fail_on_image_missing=False,
+            fail_on_mismatch=True
+        )
+        walt = [o for oid, o in oc.objects.items() if o.data['alt']
+                is not None]
+        assert_equal(3, len(walt))
+        walt = [o.data['alt'] for o in walt]
+        assert_true('This is an image of foo.' in walt)
+        assert_true('This is an image of bar.' in walt)
+        assert_true(
+            'This is an image of a motorcycle in the shape of a pickle.'
+            in walt)
 
 
 class Test_Object(TestCase):
@@ -349,4 +370,3 @@ class Test_Object(TestCase):
         o2 = ExhibitionObject(d2)
         o3 = o1.merge(o2)
         assert_true(uuid.UUID(o3.data['id'], version=4))
-

@@ -300,6 +300,28 @@ class ObjectCollection(object):
             else:
                 obj.data['summary'] = summary
 
+    def _add_alt_text(
+        self, alt_text_path, fail_on_image_missing=True, 
+        fail_on_mismatch=True
+    ):
+        data = get_csv(alt_text_path, sample_lines=1000)
+        for datum in data['content']:
+            try:
+                o = self.objects[datum['oid']]
+            except KeyError:
+                msg = (
+                    'Alt text for {} failed to match any objects'
+                    ''.format(datum['oid'])
+                )
+                if fail_on_mismatch:
+                    raise RuntimeError(msg)
+                else:
+                    logger.error(msg)
+            else:
+                v = textnorm.normalize_space(datum['alt'])
+                v = textnorm.normalize_unicode(v, 'NFC')
+                o.data['alt'] = v
+
     def _make_summary_artist(self, obj, suppress_unknown=True):
         artist = obj.data['artist']
         if artist is not None:
