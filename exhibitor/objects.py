@@ -8,11 +8,14 @@ from copy import deepcopy
 from encoded_csv import get_csv
 import json
 import logging
+import re
 from slugify import slugify
 import textnorm
 import uuid
 
-
+rx_image_filename = re.compile(
+    r'^(?P<prefix>[a-z_]+)_(?P<id>[a-z\d]+)\.(?P<extension>jpg|png)$'
+)
 # exhibition object fields are defined at:
 # github.com/isawnyu/isaw.web:
 #    /src/isaw.exhibitions/isaw/exhibitions/interfaces/__init__.py
@@ -184,6 +187,28 @@ class ObjectCollection(object):
             del self.indices['title']
         except KeyError:
             pass
+
+    def add_images(self, images_path, alt_text_path, fail_on_mismatch=True):
+        file_paths = list(images_path.glob('*_*'))
+        image_info = [
+            (rx_image_filename.match(fp.name), fp) for fp in file_paths]
+        image_info = [t for t in image_info if t[0] is not None]
+        for i, ident in enumerate([t[0].group('id') for t in image_info]):
+            try:
+                o = self.objects[ident]
+            except KeyError:
+                msg = (
+                    'Image {} failed to match any objects'
+                    ''.format(image_info[i][1].absolute())
+                )
+                if fail_on_mismatch:
+                    raise RuntimeError(msg)
+                else:
+                    logger.error(msg)
+            else:
+                o.data['image'] = image_info[i][1].name
+        #print([fp.name for fp in file_paths])
+
 
     def dump(self, file_path=None, file_type='json'):
         valid_types = ['json']

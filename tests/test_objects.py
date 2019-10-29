@@ -221,6 +221,25 @@ class Test_Collection(TestCase):
         oc.load(path)
         oc.dump(file_type='rtf')
 
+    def test_images(self):
+        """Collection: test incorporating images"""
+        path = test_data_path / 'raw_object_data.csv'
+        oc = ObjectCollection()
+        oc.load(path)
+        oc.add_images(
+            test_data_path / 'raw_object_images',
+            None,
+            fail_on_mismatch=True
+        )
+        wim = [o for oid, o in oc.objects.items() if o.data['image'] is not None]
+        assert_equal(3, len(wim))
+        wim = [o.data['image'] for o in wim]
+        assert_true('test_foo.jpg' in wim)
+        assert_true('test_bar.jpg' in wim)
+        assert_true('test_pickle.jpg' in wim)
+        assert_true('foo_bar.tif' not in wim)
+        assert_true('foobar.jpg' not in wim)
+
 
 class Test_Object(TestCase):
 
