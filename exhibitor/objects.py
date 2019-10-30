@@ -207,8 +207,8 @@ class ObjectCollection(object):
                     logger.error(msg)
             else:
                 o.data['image'] = image_info[i][1].name
-        #print([fp.name for fp in file_paths])
-
+        if alt_text_path is not None:
+            self._add_alt_text(alt_text_path)
 
     def dump(self, file_path=None, file_type='json'):
         valid_types = ['json']
@@ -304,7 +304,7 @@ class ObjectCollection(object):
         self, alt_text_path, fail_on_image_missing=True, 
         fail_on_mismatch=True
     ):
-        data = get_csv(alt_text_path, sample_lines=1000)
+        data = get_csv(alt_text_path, sample_lines=2000)
         for datum in data['content']:
             try:
                 o = self.objects[datum['oid']]
@@ -320,7 +320,8 @@ class ObjectCollection(object):
             else:
                 v = textnorm.normalize_space(datum['alt'])
                 v = textnorm.normalize_unicode(v, 'NFC')
-                o.data['alt'] = v
+                if v != '':
+                    o.data['alt'] = v
 
     def _make_summary_artist(self, obj, suppress_unknown=True):
         artist = obj.data['artist']
