@@ -22,6 +22,8 @@ OPTIONAL_ARGUMENTS = [
         False],
     ['-w', '--veryverbose', False,
         'very verbose output (logging level == DEBUG)', False],
+    ['-i', '--images', 'NOTSET', 'path to images directory', False],
+    ['-a', '--alt', 'NOTSET', 'path to csv file containing alt text', False]
 ]
 POSITIONAL_ARGUMENTS = [
     # each row is a list with 3 elements: name, type, help
@@ -45,7 +47,22 @@ def main(**kwargs):
         'Exhibited at ISAW during "A Wonder to Behold: Craftmanship and the '
         'Creation of Babylon\'s Ishtar Gate", November 6, 2019 - May 24, 2020.'
     )
-
+    images_path = Path(kwargs['images']) if kwargs['images'] != 'NOTSET' else None
+    alt_text_path = Path(kwargs['alt']) if kwargs['alt'] != 'NOTSET' else None
+    if images_path is None:
+        logger.warning(
+            'No images will be processed. Use -i parameter to specify '
+            'directory.')
+    else:
+        if alt_text_path is None:
+            logger.warning(
+                'No CSV file containing alt text was supplied using the '
+                '-a parameter. Therefore, the images in {} will be '
+                'processed, but the result will NOT be compliant with '
+                'accessibility laws and policies.'
+                ''.format(images_path.absolute())
+            )
+        ic.add_images(images_path, alt_text_path)
     ic.dump(destination)
     print('Results written to {}'.format(destination.absolute()))
     sys.exit()
