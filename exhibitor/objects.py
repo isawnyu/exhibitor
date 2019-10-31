@@ -304,7 +304,7 @@ class ObjectCollection(object):
         self, alt_text_path, fail_on_image_missing=True, 
         fail_on_mismatch=True
     ):
-        data = get_csv(alt_text_path, sample_lines=2000)
+        data = get_csv(alt_text_path, encoding='utf-8-sig', dialect='excel')
         for datum in data['content']:
             try:
                 o = self.objects[datum['oid']]
