@@ -44,7 +44,7 @@ def main(**kwargs):
     ic.fix_titles()
     ic.make_slugs()
     ic.make_summaries(
-        'Exhibited at ISAW during "A Wonder to Behold: Craftmanship and the '
+        'Exhibited at ISAW during "A Wonder to Behold: Craftsmanship and the '
         'Creation of Babylon\'s Ishtar Gate", November 6, 2019 - May 24, 2020.'
     )
     images_path = Path(kwargs['images']) if kwargs['images'] != 'NOTSET' else None

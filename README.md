@@ -10,20 +10,25 @@ Exhibitor is the work of Tom Elliott (tom.elliott@nyu.edu). Copyright (c) 2019 N
 
 2. Convert the raw CSV file to JSON
 
-    - ```python scripts/ishtar2json.py ../../I/ishtar/checklist_data/TEST_Ishtar_8_21_19.csv ~/scratch/ishtar.json```
+    - ```python scripts/ishtar2json.py ../../I/ishtar/checklist_data/ishtar_checklist_20191025.csv ~/scratch/ishtar.json```
 
-3. Run preparatory fixup script
+3. Run preparatory fixup script (NB image options -i and -a)
 
     - ```python scripts/ishtar_prep.py ~/scratch/ishtar.json ~/scratch/ishtar_result.json```
+    - ```python scripts/ishtar_prep.py -i ~/Documents/files/I/ishtar/images/ -a ~/Documents/files/I/ishtar/checklist_data/ishtar_alt_text.csv ~/scratch/ishtar.json ~/scratch/ishtar_result.json```    
 
-4. Convert those results to the JSON form that the website batch update/load script expects
+4. Check spelling with the assistance of a script and intervene in source data to fix before re-running prior steps
 
-    - ```python scripts/json4plone.py '/exhibitions/ishtar-gate/objects/' ~/scratch/ishtar_result.json ~/scratch/ishtar4plone.json```
+    - ```python scripts/spelling.py data/spelling.txt ~/scratch/ishtar_result.json```
 
-5. Copy the resulting JSON file to the server and then run the batch update script (dry run, then for real)
+5. Convert those results to the JSON form that the website batch update/load script expects
 
-    - ```bin/client1 run scripts/batch_update.py --dry-run --site isaw /home/telliott/ishtar4plone.json```
-    - ```bin/client1 run scripts/batch_update.py --site isaw /home/telliott/ishtar4plone.json```    
+    - ```python scripts/json4plone.py '/exhibitions/ishtar-gate/objects/' ~/scratch/ishtar_result.json ~/scratch/ishtar/ishtar4plone.json```
+
+6. Copy the resulting JSON file to the server and then run the batch update script (dry run, then for real)
+
+    - ```bin/client1 run scripts/batch_update.py --dry-run --site isaw /home/telliott/ishtar/ishtar4plone.json```
+    - ```bin/client1 run scripts/batch_update.py --site isaw /home/telliott/ishtar/ishtar4plone.json```    
 
 ## How to customize the processing pipeline
 

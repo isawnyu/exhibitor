@@ -24,6 +24,62 @@ ISHTAR_CROSSWALK = {
     'Image ©': 'copyright'
 }
 
+PERMITTED_WORDS = [    
+    'ah',  # excavation locus nomenclature component
+    'al',  # Arabic definite article
+    'ali',  # Arabic personal name component
+    'alto',  # placename location component
+    'amran',  # Arabic personal name component
+    'ardog',  # inventory number component
+    'b',  # inventory number component
+    'bache',  # personal name component
+    'bi',  # cuneiform sign
+    'bollacher',  # artist name
+    'c',  # inventory number component
+    'chipault',  # artist name
+    'd',  # inventory number component
+    'db',  # excavation locus nomenclature component
+    'de',  # various usages, all ok
+    'e',  # personal name component
+    'ea',  # Mesopotamian deity name
+    'eh',  # excavation locus nomenclature component
+    'fc',  # excavation locus nomenclature component
+    'g',  # inventory number component
+    'gedney',  # donor name
+    'h',  # part of an author name
+    'i',  # roman numeral, various uses
+    'ii',  # roman numeral, various uses
+    'iii',  # excavation locus nomenclature component
+    'j',  # portion of a donor name
+    'k',  # inventory number component
+    'l',  # inventory number component
+    'larrieu',  # artist name
+    'larteh',  # artist name
+    'm',  # part of an artist name
+    'mecquenem',  # artist name
+    'natur',  # valid German, but an easy error in other languages so not
+              # in main dictionary
+    'nb',  # cuneiform
+    'nr',  # inventory number component
+    'o',  # inventory number component
+    'ornamente',  # valid German, but an easy error in other languages so not
+                  # in main dictionary
+    'ollivier',  # artis name
+    'r',  # various causes, all legit
+    'raux',  # artist name
+    'sb',  # inventory number component
+    'schantz',  # artist name
+    'shumi',  # part of an ancient name
+    'sommerville',  # donor name
+    'somerville',  # the placename in Massachusetts
+    'tb',  # excavation locus nomenclature component
+    'v',  # inventory number component
+    'va',  # inventory number component
+    'vak',  # inventory number component
+    'w',  # variable but legit
+    'wachtsmuth',  # artist name
+    'zakir'  # part of an ancient name
+]
 
 TITLE_FIXUPS = {
     "1": {
